@@ -56,35 +56,49 @@
 
        <div class="jumbotron">
         <div class="container">
-          <h1 class="display-3">Covid Quenda!</h1>
-          <p>Esta aplicación foi desenvolta de forma totalmente libre por Pablo Belay e acepta convites de café ;-) </p>
-          <!--<p>Podes acceder ao código fonte en <a href="https://github.com/pbelay/covidquenda">GitHub</a> e adaptar a aplicación ao teu gusto. </p>
-           <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p> -->
+            <h2>Notificar Quendas</h2>
+
+            <p> Esta funcionalidade xera un PDF para cada alumno coa quenda asignada, logo é enviada ao correo electrónico do alumno. Para elo tes que cubrir un formulario e subir un CSV cos datos precisos. 
+
         </div>
       </div>
 
       <div class="container">
          <div class="row">
-          <div class="col-md-4">
-            <h2>Notificar quendas </h2>
-            <p> Esta funcionalidade xera un PDF para cada alumno coa quenda asignada, logo é enviada ao correo electrónico do alumno. Para elo tes que cubrir un formulario e subir un CSV cos datos precisos. 
-                
-                 </p>
-            <p><a class="btn btn-secondary" href="quendas.php" role="button">Ver máis&raquo;</a></p>
-          </div>
-          <div class="col-md-4">
-            <h2>Xerar certificados de asistencia </h2>
-            <p>Esta funcionalidade xerar os PDFs cos certificados de asistencia ao exame en Galego e Castelán, logo debe ser impreso a doble cara.
-                </p>
-            <p><a class="btn btn-secondary" href="#" role="button">Ver máis&raquo;</a></p>
-          </div>
-         <div class="col-md-4">
-            <h2>Formato do CSV </h2>
-            <p> Para que o programa funcione correctamente é preciso empregar un ficheiro CSV  Podes ver un exemplo de ficheiro correcto na seguinte ligazón: <a href="datos.csv">Datos de exemplo</a> </p>
+          <div class="col-md-10">
+            <form action="upload.php" method="post" enctype="multipart/form-data">
+              <div class="form-group">
+                <label for="exampleInputEmail1">Correo electrónico Edu Xunta do profesor</label>
+                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="profesor@edu.xunta.gal">
+               </div>
+              <div class="form-group">
+                <label for="senha">Contrasinal do correo Edu Xunta</label>
+                <input type="password" class="form-control" id="senha" placeholder="Contrasinal">
+              </div>
+
+
+              <div class="form-group">
+                <label for="modulo">Nome do módulo</label>
+                <input type="text" class="form-control" id="modulo" placeholder="Deseño de Interfaces Web">
+              </div>
+
+              <div class="form-group">
+                <label for="modulo">Aula do exame</label>
+                <input type="text" class="form-control" id="modulo" placeholder="21">
+              </div>
+
+              <div class="form-group">
+                <label for="userfile">Arquivo CSV cos datos:                </label>
+                <input type="file" class="form-control-file" id="userfile">
+              </div>
+
+
+
              
-              <p>Esta ferramenta únicamente funciona co servizo de correo de <b>  edu.xunta.gal</b> </p>
-            <p><a class="btn btn-secondary" href="#" role="button">Ver máis&raquo;</a></p>
-          </div> 
+              <button type="submit" class="btn btn-primary">Enviar</button>
+            </form>
+          </div>
+         
         </div>
 
         <hr>
