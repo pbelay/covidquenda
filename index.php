@@ -1,5 +1,5 @@
 
-<p><b> Importante:</b> Os datos teñen que estar en CSV no formato correcto e nas columnas indicas. Podes ver un exemplo de ficheiro correcto na seguinte ligazón: <a href="datos.csv">Datos de exemplo</a> </p>
+<p><b> Importante:</b> Os datos teñen que estar en CSV e nas columnas indicadas. Podes ver un exemplo de ficheiro correcto na seguinte ligazón: <a href="datos.csv">Datos de exemplo</a> </p>
 
 <ul>
   <li> Campo 1: Nome</li>
@@ -47,3 +47,9 @@
     <br>
     <input type="submit" value="Enviar">
 </form>
+<br>
+<br>
+<br>
+<footer> 
+Feito por un chapuzas non anónimo que admite convites a cafés :-) 
+</foter>
