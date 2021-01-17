@@ -9,7 +9,7 @@
         .column {
           float: left;
           padding: 10px;
-          height: 800px;  
+          height:550px;
         }
         
         .left {
@@ -78,9 +78,9 @@
 
 function verificarAcceso(val) {
   let textQR = val;
- // document.getElementById("datos").innerHTML = dni+"<br>"; 
+  document.getElementById("datos").innerHTML="";
   document.getElementById("entrada").value="";
-  $("#datos").show( );
+  $("#datos").show(1);
    if ( decriptQR(textQR) ){
          document.getElementById("datos").innerHTML += "Podes entrar"+"<br>"; 
          $('#sonOK')[0].play();
@@ -89,7 +89,7 @@ function verificarAcceso(val) {
          $("#datos").fadeOut(3000);
 
     }else{
-        document.getElementById("datos").innerHTML += "NON PODES entrar"+"<br>"; 
+        document.getElementById("datos").innerHTML += "<br>NON PODES entrar"+"<br>"; 
         $('#sonNOK')[0].play();
          $("#nok").show(1);
          $("#nok").fadeOut(2000);
@@ -115,10 +115,11 @@ function decriptQR(textQR){
               return true;
           }
 
-          let datos= `DNI: ${dni} <br> Mes ${mes} <br> Hora ${hora}..`;
+          let datos= `DNI: ${dni} <br> Mes ${mes} <br> Hora ${hora}:${minuto}..`;
           document.getElementById("datos").innerHTML =datos;
     } catch (error) {
-        console.log("Error: base64")
+         document.getElementById("datos").innerHTML ="Erro decodificando o QR";
+         console.log("Error: base64")
         return false;
     }
   } 
