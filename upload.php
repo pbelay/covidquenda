@@ -82,7 +82,7 @@ table, th, td {
 
 
 foreach ($datos as $row) {
-   echo $row[0] . '<br>';
+  // echo $row[0] . '<br>';
   $data   = $row[8];
   $alumno = $row[0] . " " . $row[1] . " " . $row[2];
   $dni    = $row[3];
@@ -91,16 +91,23 @@ foreach ($datos as $row) {
   $mesa   = $row[7];
   $mail   = $row[4];
   $xustif = (strcmp($row[5], 'Si') == 0) ; 
-
-  echo  $alumno .' - ';
   
-  xerarTicketPDF($modulo, $data, $alumno, $dni, $aula, $horario, $turno, $mesa, $carpetaTempPDF);
+  //Xeramos a linha para o QR
+  //Obter campos da data . ex: $fecha = "04-01-1973";
+   $listaData = preg_split("/[\s:-]+/", $data); 
+  //  $listaHorario = preg_split("/[\s:-]+/", "19:20 – 20:35");
+  $listaHorario =  preg_split("/[\s:-]+/", $horario);
+  $lineaQR=  $dni.";". $listaData[0].";". $listaData[1] .";". $listaData[2] .";". $listaHorario[0] .";". $listaHorario[1]  ;
+  
+ 
+  
+  xerarTicketPDF($modulo, $data, $alumno, $dni, $aula, $horario, $turno, $mesa, $carpetaTempPDF, $lineaQR);
   
   envio($mail,$mailProfe, $mailSenha, $dni,$modulo, $alumno, $carpetaTempPDF);
   
   //Xeracion xustificante
   if (  (strcmp($xustif, '1') == 0)){
-	    echo $xustif .'<br>';
+	    
 	    xerarXustificantePDF($modulo, $data, $alumno, $dni, $aula, $horario, $turno, $mesa, $carpetaTempPDF,$dia, $mes, $modalidade, $nomeprofe );
   }
   
@@ -110,12 +117,13 @@ foreach ($datos as $row) {
 }
 //Fin bucle
 $htmlAsist=$htmlAsist.'</table>';
+
+
 xerarListadoPDF($modulo, $data, $alumno, $dni, $aula, $horario, $turno, $mesa, $carpetaTempPDF,$htmlAsist, $modalidade, $dia, $mes);
+//envioCorreoProfe($mailProfe, $mailSenha,$modulo, $carpetaTempPDF );
 
+ echo $htmlAsist;
 
-echo $htmlAsist;
-
-// -------------------------------------------------------------------
 //FUNCIÓNS
 //Lectura CSV
 function leerCSV($filename)
@@ -125,7 +133,6 @@ function leerCSV($filename)
 
     while (($data = fgetcsv($h, 1000, ",")) !== FALSE) {
       $datos[] = $data;
-     
     }
     fclose($h);
   }
@@ -134,11 +141,11 @@ function leerCSV($filename)
 
 
 //Xeracion de PDF's cos tickets para cada alumno, gardanse polo DNI
-function xerarTicketPDF($modulo, $data, $nome, $dni, $aula, $horario, $turno, $mesa, $directorio)
+function xerarTicketPDF($modulo, $data, $nome, $dni, $aula, $horario, $turno, $mesa, $directorio,$lineaQR)
 {
 
   //xerar codigo qr	
-  $qrCode = new QrCode($dni);
+  $qrCode = new QrCode(base64_encode($lineaQR));
   $qrCode->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0, 'a' => 0]);
 //  $qrCode->setBackgroundColor(['r' => 96, 'g' => 96, 'b' => 95, 'a' => 0]);
 
@@ -232,15 +239,16 @@ function envio($correo,$mailProfe, $mailSenha, $dni,$modulo, $alumno, $carpetaTe
   $mail->AltBody = 'This is a plain-text message body';
   //Attach an image file
   $mail->addAttachment($carpetaTempPDF.$dni.'.pdf');
+  $mail->addAttachment($carpetaTempPDF.$dni.'.png');
   $mail->Body = '<b>Estimado/a '.$alumno. ', <br> no documento adxunto podes descargar o xustificante de acceso para o exame. </b>';
 
 
 
   //send the message, check for errors
   if (!$mail->send()) {
-    echo ' Mailer Error: ' . $mail->ErrorInfo. '<br>';
+    echo '<p style="background-color:red;"> Erro enviado o email a: '.$alumno. ' - ' . $mail->ErrorInfo. '</p>';
   } else {
-    echo ' Message sent!'. '<br>';
+    // echo ' Message sent!'. '<br>';
   }
 }
 
@@ -248,7 +256,6 @@ function envio($correo,$mailProfe, $mailSenha, $dni,$modulo, $alumno, $carpetaTe
 //Xeracion de PDF's cos tickets para cada alumno, gardanse polo DNI
 function xerarXustificantePDF($modulo, $data, $nome, $dni, $aula, $horario, $turno, $mesa, $carpetaTempPDF, $dia, $mes, $modalidade, $nomeprofe )
 {
-	echo 'xusti <br>';
   $html = "";
   $mpdf = new \Mpdf\Mpdf([]);
   $mpdf->SetHTMLHeader("<img src='./img/logo.png' >");
@@ -304,7 +311,7 @@ function xerarXustificantePDF($modulo, $data, $nome, $dni, $aula, $horario, $tur
 
 function xerarListadoPDF($modulo, $data, $nome, $dni, $aula, $horario, $turno, $mesa, $carpetaTempPDF, $htmlListado, $modalidade, $dia, $mes,$nomeprofe )
 {
-	echo 'xusti <br>';
+	 
   $html = "";
   $mpdf = new \Mpdf\Mpdf([]);
   $mpdf->SetHTMLHeader("<img src='./img/logo.png' > <br>");
@@ -337,5 +344,43 @@ function xerarListadoPDF($modulo, $data, $nome, $dni, $aula, $horario, $turno, $
 
 
 
+function envioCorreoProfe($mailProfe, $mailSenha,$modulo, $carpetaTempPDF )
+{
+
+  //Create a new PHPMailer instance
+  $mail = new PHPMailer();
+  //Tell PHPMailer to use SMTP
+  $mail->isSMTP();
+  $mail->SMTPDebug = SMTP::DEBUG_OFF;
+  //Set the hostname of the mail server
+  $mail->Host = 'smtp.edu.xunta.gal';
+  $mail->Port = 587;
+  $mail->SMTPAuth = true;
+  $mail->Username =  $mailProfe;
+  $mail->Password =  $mailSenha;
+  $mail->setFrom($mailProfe, '');
+  $mail->addReplyTo($mailProfe, '');
+  $mail->addAddress($mailProfe, '');
+  $mail->Subject = 'Envio de documentos do exame: '.$modulo;
+  $mail->AltBody = 'This is a plain-text message body';
+  //Arquivos adxuntos
+ 
+	$dir_iterator = new RecursiveDirectoryIterator($carpetaTempPDF);
+	$iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
+	foreach ($iterator as $file) {
+		  $mail->addAttachment($file);
+	}
+  $mail->addAttachment($carpetaTempPDF.'listado.pdf');
+  
+  
+  $mail->Body = '<b>  Documentación nos adxuntos </b>';
+
+  //send the message, check for errors
+  if (!$mail->send()) {
+    echo ' Mailer Error ADXUNTOS PROFE: ' . $mail->ErrorInfo. '<br>';
+  } else {
+    echo ' Message sent ADXUNTOS PROFE!'. '<br>';
+  }
+}
  
 ?>
