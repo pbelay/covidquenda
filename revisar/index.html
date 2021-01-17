@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<head>
+    <style>
+        * {
+          box-sizing: border-box;
+        }
+        
+        /* Create two unequal columns that floats next to each other */
+        .column {
+          float: left;
+          padding: 10px;
+          height: 300px; /* Should be removed. Only for demonstration */
+        }
+        
+        .left {
+          width: 25%;
+        }
+        
+        .right {
+          width: 75%;
+        }
+        
+        /* Clear floats after the columns */
+        .row:after {
+          content: "";
+          display: table;
+          clear: both;
+        }
+
+        
+        </style>
+</head>
+<body>
+
+<h2>Control de acceso</h2>
+
+<div class="row">
+    <div class="column left blanco">
+      <h2>Acerque o código QR ao lector</h2>
+    </div>
+    <div class="column right" >
+        <img id="ok" src="img/ok.png" style="display:none" width="500" height="600">
+        <img id="nok" src="img/nok.jpg" style="display:none" width="500" height="600">
+
+        <audio id="sonOK">
+            <source src="sound/ok/ok.ogg" type="audio/ogg">
+            <source src="sound/ok/ok.m4r" type="audio/mpeg">
+            <source src="sound/ok/ok.mp3" type="audio/mp3">
+        </audio>
+
+        <audio id="sonNOK">
+            <source src="sound/nok/fail.ogg" type="audio/ogg">
+            <source src="sound/nok/fail.m4r" type="audio/mpeg">
+            <source src="sound/nok/fail.mp3" type="audio/mp3">
+        </audio>
+
+        <p id="demo"></p>
+    </div>
+  </div>
+
+<input id="entrada" type="text" onchange="myFunction(this.value)">                             
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+ document.getElementById("entrada").focus();  
+ var listaDNI = [ '1', '76933928D', '76862420P', '35525016T' ];
+
+ 
+
+function myFunction(val) {
+  let dni = val;
+  document.getElementById("demo").innerHTML = dni+"<br>"; 
+  document.getElementById("entrada").value="";
+  $("#demo").show();
+   if ( listaDNI.includes( dni ) ){
+         document.getElementById("demo").innerHTML += "Podes entrar"+"<br>"; 
+         $('#sonOK')[0].play();
+         $("#ok").show(1);
+         $("#ok").fadeOut(2000);
+         $("#demo").fadeOut(3000);
+
+         //document.body.style.backgroundColor = "green";
+   }else{
+        document.getElementById("demo").innerHTML += "NON PODES entrar"+"<br>"; 
+        $('#sonNOK')[0].play();
+         $("#nok").show(1);
+         $("#nok").fadeOut(2000);
+         $("#demo").fadeOut(3000);
+       // document.body.style.backgroundColor = "red";
+        
+   }
+  // $("#demo").fadeOut(2000);
+   
+}
+
+/*
+$(document).ready(function(){
+  $(".btn1").click(function(){
+   
+  });
+  $(".btn2").click(function(){
+    $("p").fadeIn();
+  });
+});
+*/
+</script>
+
+</body>
+</html>
