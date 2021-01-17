@@ -5,11 +5,11 @@
           box-sizing: border-box;
         }
         
-        /* Create two unequal columns that floats next to each other */
+      
         .column {
           float: left;
           padding: 10px;
-          height: 500px; /* Should be removed. Only for demonstration */
+          height: 800px;  
         }
         
         .left {
@@ -39,7 +39,7 @@
 
     <div class="column left blanco">
       <h2>Datos</h2>
-      <p id="demo"></p>
+      <p id="datos"></p>
     </div>
 
 
@@ -64,7 +64,7 @@
     </div>
   </div>
 
-<input id="entrada" type="text" onchange="myFunction(this.value)">                             
+<input id="entrada" type="text" onchange="verificarAcceso(this.value)">                             
 
 
 
@@ -76,42 +76,58 @@
 
  
 
-function myFunction(val) {
-  let dni = val;
-  document.getElementById("demo").innerHTML = dni+"<br>"; 
+function verificarAcceso(val) {
+  let textQR = val;
+ // document.getElementById("datos").innerHTML = dni+"<br>"; 
   document.getElementById("entrada").value="";
-  $("#demo").show();
-   if ( listaDNI.includes( dni ) ){
-         document.getElementById("demo").innerHTML += "Podes entrar"+"<br>"; 
+  $("#datos").show( );
+   if ( decriptQR(textQR) ){
+         document.getElementById("datos").innerHTML += "Podes entrar"+"<br>"; 
          $('#sonOK')[0].play();
          $("#ok").show(1);
          $("#ok").fadeOut(2000);
-         $("#demo").fadeOut(3000);
+         $("#datos").fadeOut(3000);
 
-         //document.body.style.backgroundColor = "green";
-   }else{
-        document.getElementById("demo").innerHTML += "NON PODES entrar"+"<br>"; 
+    }else{
+        document.getElementById("datos").innerHTML += "NON PODES entrar"+"<br>"; 
         $('#sonNOK')[0].play();
          $("#nok").show(1);
          $("#nok").fadeOut(2000);
-         $("#demo").fadeOut(3000);
-       // document.body.style.backgroundColor = "red";
-        
+         $("#datos").fadeOut(3000);
    }
-  // $("#demo").fadeOut(2000);
-   
+    
 }
 
-/*
-$(document).ready(function(){
-  $(".btn1").click(function(){
-   
-  });
-  $(".btn2").click(function(){
-    $("p").fadeIn();
-  });
-});
-*/
+function decriptQR(textQR){
+  var hoxe = new Date();
+     try {
+           
+          let text= window.atob(textQR).split(";");
+          let dni=text[0];
+          let ano=parseInt(text[1]);
+          let mes=parseInt(text[2]);
+          let dia=parseInt(text[3]);
+          let hora=parseInt(text[4]);
+          let minuto=parseInt(text[5]);
+
+          //Verificamos que coincida o dia e o mes
+          if(hoxe.getDate()==dia && (hoxe.getMonth()+1)==mes && hoxe.getHours()==hora ){
+              return true;
+          }
+
+          let datos= `DNI: ${dni} <br> Mes ${mes} <br> Hora ${hora}..`;
+          document.getElementById("datos").innerHTML =datos;
+    } catch (error) {
+        console.log("Error: base64")
+        return false;
+    }
+  } 
+
+ 
+
+
+ 
+
 </script>
 
 </body>

@@ -82,7 +82,7 @@ table, th, td {
 
 
 foreach ($datos as $row) {
-  // echo $row[0] . '<br>';
+   echo $row[0] . '<br>';
   $data   = $row[8];
   $alumno = $row[0] . " " . $row[1] . " " . $row[2];
   $dni    = $row[3];
@@ -115,6 +115,7 @@ xerarListadoPDF($modulo, $data, $alumno, $dni, $aula, $horario, $turno, $mesa, $
 
 echo $htmlAsist;
 
+// -------------------------------------------------------------------
 //FUNCIÓNS
 //Lectura CSV
 function leerCSV($filename)
@@ -124,6 +125,7 @@ function leerCSV($filename)
 
     while (($data = fgetcsv($h, 1000, ",")) !== FALSE) {
       $datos[] = $data;
+     
     }
     fclose($h);
   }
