@@ -6,4 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Camspiers' => array($vendorDir . '/camspiers/json-pretty/src'),
 );

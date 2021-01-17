@@ -1,19 +1,24 @@
 
 <?php
+
 //Para enviar mails
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
+use Endroid\QrCode\QrCode;
 
 // Para xerar pdfs
 $path = (getenv('MPDF_ROOT')) ? getenv('MPDF_ROOT') : __DIR__;
 require $path . '/vendor/autoload.php';
 
-
 //Variables do formulario
-$modulo  = $_POST["modulo"];
-$aula	 = $_POST["aula"];
+$modulo    = $_POST["modulo"]; 
+$modalidade= $_POST["modalidade"];
+$dia= $_POST["dia"];
+$mes=$_POST["mes"];
+$aula	   = $_POST["aula"];
 $mailProfe = $_POST["mailProfe"];
 $mailSenha = $_POST["mailSenha"];
+$nomeprofe = $_POST["nomeprofe"];
 
 //Variables globais
 $mailSMTP = 'smtp.edu.xunta.gal';
@@ -21,6 +26,7 @@ $portSMTP = '587';
 $carpetaTemp =  rand(0, 9999999);
 $carpetaTempPDF = $carpetaTemp.'/pdf/';
 $carpetaTempCSV = $carpetaTemp.'/csv/';
+
 
 //Crear carpetas temporais
 mkdir($carpetaTemp);
@@ -34,6 +40,9 @@ echo "aula: " . $aula . "<br>";
 echo "mailProfe: " . $mailProfe . "<br>";
 echo "mailSenha: " . $mailSenha . "<br>";
 echo "carpetaTemp: " . $carpetaTemp  . "<br>";
+echo "dia: " . $dia  . "<br>";
+echo "mes: " . $mes  . "<br>";
+echo "nomeprofe: " . $nomeprofe  . "<br>";
 echo "<br>";
 
 echo "<h1>Procesado do ficheiro CSV </h1>";
@@ -59,9 +68,17 @@ if (!((strpos($tipo_archivo, "csv")) && ($tamano_archivo < 100000))) {
 //..................
 //PRINCIPAL
 //Lista cos datos do CSV
-$datos = [];
-$datos = leerCSV($carpetaTempCSV.$filename);
+$datos 		= [];
+$datos 		= leerCSV($carpetaTempCSV.$filename);
+$htmlAsist	= ' 
+<style>
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+</style>
 
+<table style="width:100%"> ';// <tr>  <th>Nome</th>   <th>DNI</th>   <th>Quenda</th>   <th>Mesa</th>    <th>Sinatura</th>  </tr>';
 
 
 foreach ($datos as $row) {
@@ -73,11 +90,30 @@ foreach ($datos as $row) {
   $turno  = $row[6];
   $mesa   = $row[7];
   $mail   = $row[4];
-  echo  $alumno ;
-  xerarTicketPDF($modulo, $data, $alumno, $dni, $aula, $horario, $turno, $mesa, $carpetaTempPDF);
-  envio($mail,$mailProfe, $mailSenha, $dni,$modulo, $alumno, $carpetaTempPDF);
-}
+  $xustif = (strcmp($row[5], 'Si') == 0) ; 
 
+  echo  $alumno .' - ';
+  
+  xerarTicketPDF($modulo, $data, $alumno, $dni, $aula, $horario, $turno, $mesa, $carpetaTempPDF);
+  
+  envio($mail,$mailProfe, $mailSenha, $dni,$modulo, $alumno, $carpetaTempPDF);
+  
+  //Xeracion xustificante
+  if (  (strcmp($xustif, '1') == 0)){
+	    echo $xustif .'<br>';
+	    xerarXustificantePDF($modulo, $data, $alumno, $dni, $aula, $horario, $turno, $mesa, $carpetaTempPDF,$dia, $mes, $modalidade, $nomeprofe );
+  }
+  
+  //Listado asistentes
+  $htmlAsist=$htmlAsist.'<tr>  <td>'.$alumno.'</td>   <td>'.$dni.'</td>   <td>'.$turno.'</td>   <td>'.$mesa.'</td>    <td width="30%">  </td>  </tr>';
+
+}
+//Fin bucle
+$htmlAsist=$htmlAsist.'</table>';
+xerarListadoPDF($modulo, $data, $alumno, $dni, $aula, $horario, $turno, $mesa, $carpetaTempPDF,$htmlAsist, $modalidade, $dia, $mes);
+
+
+echo $htmlAsist;
 
 //FUNCIÓNS
 //Lectura CSV
@@ -98,21 +134,47 @@ function leerCSV($filename)
 //Xeracion de PDF's cos tickets para cada alumno, gardanse polo DNI
 function xerarTicketPDF($modulo, $data, $nome, $dni, $aula, $horario, $turno, $mesa, $directorio)
 {
+
+  //xerar codigo qr	
+  $qrCode = new QrCode($dni);
+  $qrCode->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0, 'a' => 0]);
+//  $qrCode->setBackgroundColor(['r' => 96, 'g' => 96, 'b' => 95, 'a' => 0]);
+
+  $qrCode->writeFile($directorio.$dni.'.png');
+  //header('Content-Type: '.$qrCode->getContentType());
+
   $html = "";
   $mpdf = new \Mpdf\Mpdf([]);
   $mpdf->SetHTMLHeader("<img src='./img/logo.png' >");
 
 
-  $html = '<br> <br> <br> <h2>' . $modulo . '</h2>
+  $html = '<br> <br> <br> <h2 style="text-align:center">' . $modulo . '</h2>
 
 <div>
    Os datos para este exame son:
 
-    <div style="float: right; width: 28%;">
-           <img  style="float:right;" src="./img/quenda' . $turno . '.png" >
+    <div style="float: right; width: 25%;background-color:#f4f4f2">
+
+          
+           <!-- <p   style="float:right;font-size:120%; text-align:center ; font-weight: bold;"> Quenda '.$turno.'<br>'.$horario.' </p> -->
+		   <!-- <p   style="float:right;font-size:80%;text-align:center;  "> '.$horario.' </p>-->
+                   <p   style="float:right;font-size:70%;text-align:center;  "> <img src="'.$directorio.$dni.'.png"> </p>
+                     
+	   
+
+    </div>
+    <div style="float: right; width: 25%;background-color:#f4f4f2">
+
+          
+           <p   style="float:right;font-size:190%; text-align:center ; font-weight: bold;"> Quenda '.$turno.' </p>
+		   <p   style="float:right;font-size:180%;text-align:center;  "> '.$horario.' </p>
+           <!--        <p   style="float:right;font-size:70%;text-align:center;  "> <img src="'.$directorio.$dni.'.png"> </p> -->
+                     
+	   
+
     </div>
 
-    <div style="float: left; width: 54%;">
+    <div style="float: left; width: 50%;">
              <ul>* Data:' . $data . ' </ul>
              <ul>* Horario: ' . $horario . ' </ul>
              <ul>* Aula: ' . $aula . '</ul>
@@ -181,6 +243,95 @@ function envio($correo,$mailProfe, $mailSenha, $dni,$modulo, $alumno, $carpetaTe
 }
 
 
+//Xeracion de PDF's cos tickets para cada alumno, gardanse polo DNI
+function xerarXustificantePDF($modulo, $data, $nome, $dni, $aula, $horario, $turno, $mesa, $carpetaTempPDF, $dia, $mes, $modalidade, $nomeprofe )
+{
+	echo 'xusti <br>';
+  $html = "";
+  $mpdf = new \Mpdf\Mpdf([]);
+  $mpdf->SetHTMLHeader("<img src='./img/logo.png' >");
+  $mpdf->SetHTMLFooter('Páxina: {PAGENO}/{nbpg} -  Quenda:'.$turno.'- Mesa: '.$mesa);
+
+  $htmlES = '<br> <br> <br> <h2 align="center"> CERTIFICADO DE ASISTENCIA A EXAMEN  </h2>
+
+  <br>
+  <br>
+<div>
+   <p  style="line-height: 200%"> D./Dona '.$nomeprofe.' profesor/a responsable del módulo '.$modulo.' que se imparte en el IES San Clemente en el 2º curso del Ciclo Superior  de Desarrollo de Aplicaciones Web en la modalidad de '.$modalidade.' en el curso 2020-2021.</p>
+
+   <p  style="line-height: 200%"> <b> CERTIFICA QUE: </b> </p>
+
+<p  style="line-height: 200%">
+   El/la alumno/a '.$nome.' matriculado/a en dicha asignatura con DNI '.$dni.' ha asistido en la tarde de hoy a la realización del examen presencial correspondiente al primer parcial liberador de materia que se ha realizado, en el turno '.$turno.', en la franja horaria de '.$horario.' en el aula nº '.$aula.' del citado centro.
+</p>
+
+   <p  style="line-height: 200%"> Para que así conste, a petición del interesado y a los efectos oportunos, firmo la presente en  </p> 
+  <br>
+  <p align="center">   <img   src="./img/selo.png"></p>
+  <br>
+   <p  style="line-height: 200%" align="center"> Santiago de Compostela, a '.$dia.' de '.$mes.' de 2020. </p> ';
+
+
+ $htmlGL = '<br> <br> <br> <h2 align="center"> CERTIFICADO DE ASISTENCIA AO EXAME  </h2>
+
+ <br>
+ <br>
+<div>
+  <p  style="line-height: 200%"> D. '.$nomeprofe.' profesor/a responsable do módulo '.$modulo.' que se imparte no IES San Clemente no 2º curso do Ciclo Superior  de Desenvolvemento de aplicacións web na modalidade de '.$modalidade.' no curso 2020-2021.</p>
+
+  <p  style="line-height: 200%"> <b> CERTIFICA QUE: </b> </p>
+
+<p  style="line-height: 200%">
+  O/a alumno/a '.$nome.' matriculado/a en dito módulo con DNI '.$dni.' asistiu na tarde de hoxe á realización do exame presencial correspondente ao primeiro parcial liberador de materia que se realizou, na quenda '.$turno.', na franxa horaria de '.$horario.' na aula nº '.$aula.' do citado centro.
+</p>
+
+  <p  style="line-height: 200%"> Para que así conste, a petición do interesado e aos  efectos oportunos, asino a presente en   </p> 
+ <br>
+ <p align="center">   <img   src="./img/selo.png"></p>
+ <br>
+  <p  style="line-height: 200%" align="center"> Santiago de Compostela, a '.$dia.' de '.$mes.' de 2020. </p>
+
+';
+
+  $mpdf->WriteHTML($htmlGL);
+  $mpdf->AddPage();
+  $mpdf->WriteHTML($htmlES);
+   
+  $mpdf->Output($carpetaTempPDF.'/xusti_' . $dni . '.pdf', 'F');
+}
+
+function xerarListadoPDF($modulo, $data, $nome, $dni, $aula, $horario, $turno, $mesa, $carpetaTempPDF, $htmlListado, $modalidade, $dia, $mes,$nomeprofe )
+{
+	echo 'xusti <br>';
+  $html = "";
+  $mpdf = new \Mpdf\Mpdf([]);
+  $mpdf->SetHTMLHeader("<img src='./img/logo.png' > <br>");
+  $mpdf->SetHTMLFooter('Páxina: {PAGENO}/{nbpg} ');
+
+
+ $htmlGL = '<br> <br> <br> <h3 align="center"> LISTADO PRESENTADOS AO PRIMEIRO EXAME PARCIAL PRESENCIAL DE '.$modulo.'</h3>';
+ $htmlGL = $htmlGL.$htmlListado;
+ 
+
+
+ $htmlGL = $htmlGL .'<br>
+<div>
+
+  <p  style="line-height: 200%"> D. '.$nomeprofe.' responsable do módulo '.$modulo.' que se imparte no IES San Clemente no 2º curso do Ciclo Superior  de Desenvolvemento de aplicacións web na modalidade de '.$modalidade.' no curso 2020-2021.</p>
+  <p  style="line-height: 200%"> O resumo desta proba son ______ participantes, presentados ____  </p>
+
+ <br>
+ <p align="center">   <img   src="./img/selo.png"></p>
+ <br>
+  <p  style="line-height: 200%" align="center"> Santiago de Compostela, a '.$dia.' de '.$mes.' de 2020. </p>
+
+';
+
+  $mpdf->WriteHTML($htmlGL);
+
+   
+  $mpdf->Output($carpetaTempPDF.'/listado.pdf', 'F');
+}
 
 
 

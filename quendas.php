@@ -8,8 +8,8 @@
   <li> Campo 4: DNI</li>
   <li> Campo 5: E-mail do alumno</li>
   <li> Campo 6: Cadea Si ou Non que nos indica se quere xustificante. Isto ainda está pendente de implementar. </li>
-  <li> Campo 7: Turno. Agarde un número 1 ou 2 </li>
-  <li> Campo 8: Número do ordenador a empregar </li>
+  <li> Campo 7: Turno. Agarda un número 1 ou 2 </li>
+  <li> Campo 8: Número do ordenador a empregar polo alumno/a</li>
   <li> Campo 9: Dia do exame </li>
   <li> Campo 10: Franxa horario do exame, por exemplo: 19:20 - 20:35</li>
 </ul>
@@ -28,7 +28,7 @@
     <br>
     
       <label for="modulo">Módulo: </label>
-    <input id="modulo" type="text" name="modulo" size="20" maxlength="100">
+    <input id="modulo" type="text" name="modulo" size="120" maxlength="100">
     <br>
     
     
@@ -36,7 +36,27 @@
     <input id="aula" type="text" name="aula" size="20" maxlength="100">
     <br>
 
+	<label for="dia">Dia sinatura: </label>
+    <input id="dia" type="number" name="dia" size="20" value="10" maxlength="100">
     <br>
+    
+    <label for="mes">Mes sinatura: </label>
+    <input id="mes" type="text" name="mes" size="20" value="decembro"  maxlength="100">
+    <br>
+    <br>
+    
+    <label for="modalidade">modalidade: </label>
+    <input id="modalidade" type="text" name="modalidade" value="distancia" size="20" maxlength="100">
+    <br>
+    <br>
+
+   <label for="nomeprofe">Nome e apelidos do profesor: </label>
+    <input id="nomeprofe" type="text" name="nomeprofe" size="80" maxlength="100">
+    <br>
+    <br>
+
+
+
 
     
     <input type="hidden" name="MAX_FILE_SIZE" value="100000">
@@ -47,9 +67,3 @@
     <br>
     <input type="submit" value="Enviar">
 </form>
-<br>
-<br>
-<br>
-<footer> 
-Feito por un chapuzas non anónimo que admite convites a cafés :-) 
-</foter>
