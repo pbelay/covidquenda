@@ -119,7 +119,7 @@ foreach ($datos as $row) {
 $htmlAsist=$htmlAsist.'</table>';
 
 
-xerarListadoPDF($modulo, $data, $alumno, $dni, $aula, $horario, $turno, $mesa, $carpetaTempPDF,$htmlAsist, $modalidade, $dia, $mes);
+xerarListadoPDF($modulo, $data, $alumno, $dni, $aula, $horario, $turno, $mesa, $carpetaTempPDF,$htmlAsist, $modalidade, $dia, $mes,$nomeprofe);
 //envioCorreoProfe($mailProfe, $mailSenha,$modulo, $carpetaTempPDF );
 
  echo $htmlAsist;

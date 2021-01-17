@@ -99,6 +99,14 @@ function verificarAcceso(val) {
 function decriptQR(textQR){
   console.log("textQR: "+textQR)
   var hoxe = new Date();
+  var holgura = 30 ; //minutos
+  var hoxeHolgura1= new Date();
+  hoxeHolgura1.setMinutes(hoxe.getMinutes()+holgura);
+
+  var hoxeHolgura2= new Date();
+  hoxeHolgura2.setMinutes(hoxe.getMinutes()-holgura);
+  var fechaExame = new Date();
+
      try {
            
           let text= window.atob(textQR).split(";");
@@ -109,9 +117,15 @@ function decriptQR(textQR){
           let hora=parseInt(text[4]);
           let minuto=parseInt(text[5]);
 
-          //Verificamos que coincida o dia e o mes
-          if(hoxe.getDate()==dia && (hoxe.getMonth()+1)==mes && hoxe.getHours()==hora ){
-              return true;
+          //s
+          fechaExame.setFullYear(ano);
+          fechaExame.setMonth(mes-1);
+          fechaExame.setDate(dia);
+          fechaExame.setHours(hora);
+          fechaExame.setMinutes(minuto);
+          if (fechaExame<=hoxeHolgura1 && fechaExame>=hoxeHolgura2){
+            return true;
+
           }
 
           let datos= `DNI: ${dni} <br> Mes ${mes} <br> Hora ${hora}:${minuto}..`;
